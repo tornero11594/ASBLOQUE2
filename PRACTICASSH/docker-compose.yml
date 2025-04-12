@@ -1,0 +1,35 @@
+
+services:
+  servicio_ssh:
+    build: ./servicio_ssh
+    container_name: servicio_ssh
+    networks:
+      servicio_net:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "2222:22"
+
+  desarrollo_ssh:
+    build: ./desarrollo_ssh
+    container_name: desarrollo_ssh
+    networks:
+      desarrollo_net:
+        ipv4_address: 172.21.0.10
+    ports:
+      - "2223:22"
+    cap_add:
+      - SYS_ADMIN
+    tty: true
+
+networks:
+  servicio_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+  desarrollo_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
