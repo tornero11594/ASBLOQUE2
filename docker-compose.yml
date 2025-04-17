@@ -1,0 +1,48 @@
+services:
+  ssh-server:
+    image: linuxserver/openssh-server
+    container_name: ssh_server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PUBLIC_KEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDM51R+CQ3bv1yFnw79h+M8aqY4uQPrk4eFHPgqt5nNlzuLKMdyQa76kOwiYKhRRHY+pVoLG9YU8xhIvA73PQptczoRr1vN+Mw8wVYOidt1MPdjnLHKIHd6gI25RbVZgkSFITpj9O08zQDc6zrKyTt9wH4drxxT2/nLvkqMAcShdJkQNxS/q/MttsOyW5e+GA4TXzAmJTf1pZR4PxnYceHtUXa90Yiae6CRPCmZJMmtzJcncEKav/KibWOjrM3aLqta8UUxUqvS3o+l3gmEGtbrR9DHX58dOf1Rc+G5bcDeXfg3qmD3+vvzftlvwdgIMaNhXo5tOAP/H9oadZXUhC5f2RVjANCmZWUn/vdjeOHzZYtHZ35IBWGPXjlrWa2HcPB7UM0q4xvCDNp4SfrpyzaauL6HcXRDKly8JuZ4ONVTwBUgsGAT4wiE6xaEt1ftHVdp9OZsm7TiN5r5ZtDMKYoRsxW0TDApfCcXB/SNU0Ub5Ckis3wHgxGQESwZWyxDYRtBNkH8ZQCD4rOQ7YJbPY72tu9o1GactdEIg5dMcVQFP+I2xvXyegNSiIEQx0Q+N0HQiE+a/RHo21UJ2FRgVCvuzmXICCdpO9NwXIj0ybfvcu/c0klu+rFk6TghGKkNvdrQhT5D7hVOqCiMFjELBozeVaECQuA/zy5GIgKCbeVJzQ== daniel@gmail.com
+      - SUDO_ACCESS=false
+      - PASSWORD_ACCESS=false
+      - USER_NAME=usuario
+    ports:
+      - "2222:2222"
+    restart: unless-stopped
+    networks:
+      services_net:
+        ipv4_address: 172.20.0.2  
+
+networks:
+  services_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+  production_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+
+  ssh2fa:
+    build:
+      context: ./production
+      args:
+        SSH_USER: usuario
+        SSH_PASSWORD: clave123
+    container_name: ssh2fa
+    ports:
+      - "2223:22"
+    networks:
+      production_net:
+        ipv4_address: 172.30.0.2
+    restart: unless-stopped
+
+

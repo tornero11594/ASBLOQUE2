@@ -1,0 +1,25 @@
+FROM debian:bullseye
+
+RUN apt-get update && \
+    apt-get install -y openssh-server libpam-google-authenticator qrencode && \
+    mkdir /var/run/sshd
+
+# Crear usuario con contraseña
+ARG SSH_USER
+ARG SSH_PASSWORD
+
+RUN useradd -m -s /bin/bash $SSH_USER && \
+    echo "$SSH_USER:$SSH_PASSWORD" | chpasswd && \
+    mkdir -p /home/$SSH_USER/.ssh && \
+    chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/.ssh
+
+# Copiar configuración SSH y configurar PAM
+COPY sshd_config /etc/ssh/sshd_config
+
+# Activar Google Authenticator en PAM
+RUN echo "auth required pam_google_authenticator.so nullok" >> /etc/pam.d/sshd
+
+# Exponer puerto SSH
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]
